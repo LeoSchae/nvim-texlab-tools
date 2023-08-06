@@ -1,0 +1,268 @@
+==============================================================================
+------------------------------------------------------------------------------
+                                                           *TexLab* *texlab-tools*
+TEXLAB TOOLS
+============
+
+The texlab-tools plugin creates functionality around the texlab language server.
+The plugin does nothing without being set up.
+To set up the plugin, call |TexLab.setup()| with your prefered options.
+
+
+REQUIREMENTS
+
+- [texlab](https://github.com/latex-lsp/texlab) language server installed (at least v5.7.0)
+- [nvim-lspconfig](https://github.com/neovim/nvim-lspconfig)
+- [telescope.nvim](https://github.com/nvim-telescope/telescope.nvim)
+  and [plenary.nvim](https://github.com/nvim-lua/plenary.nvim) (optional for toc)
+
+
+------------------------------------------------------------------------------
+                                                                *TexLab.setup()*
+                             `TexLab.setup`({opts})
+Setup the texlab-tools plugin
+See |TexLab.configuration.example| for an example config.
+
+Parameters~
+{opts} `(table)` | nil Important keys:
+
+ - `snippet.app` string|nil: The application to use for snippet insertion.
+   Available options: "snippy", "vsnip", "luasnip", "ultisnips"
+
+ - `viewer.app` string|nil: The application to use for pdf viewing.
+   For now only "zathura" is supported.
+
+ - `builder.app` (string)|nil: The application to use for building. (default: "latexmk")
+   For now only "latexmk" is supported.
+
+ - `mappings` table|nil: Mappings that are added once TexLab attaches to a buffer.
+   See |TexLab.mappings()| for more info.
+
+ - `texlab_opts` table|false|nil: Additional options that are passed to the texlab language server.
+   If false, the server is not started. An existing server can be used if it is set up.
+
+------------------------------------------------------------------------------
+                                            *TexLab.setup.with_example_config()*
+                   `TexLab.setup.with_example_config`({opts})
+Setup the texlab-tools plugin with the exact example config from |TexLab.configuration.example|.
+If you want to customize it is recommended to copy/paste the example config and change it.
+
+Parameters~
+{opts} `(table)` | nil See |TexLab.setup()|.
+! The behaviour of this function is subject to change.
+
+
+==============================================================================
+------------------------------------------------------------------------------
+                                                          *TexLab.configuration*
+EXAMPLE CONGIFURATION
+To try this config call
+>lua
+ TexLab.setup.with_example_config({
+   snippet = { app = "snippy" },
+   viewer = { app = "zathura" },
+   builder = { app = "latexmk" },
+ })
+<
+in your `init.lua`. This will setup the keybindings from the example config.
+If you want to try from vimscript, use `lua require("texlab-tools").setup.with_example_config`().
+>lua
+  local tex = require("texlab-tools")
+
+  tex.setup({
+    -- To use snippets, set either `snippet.engine` or `snippet.expand`.
+    -- snippet = { app = "snippy" }, -- "snippy", "luasnip", "vsnip", "ultisnips"
+    -- snippet = { expand = function(body) [expand-fn](body) end },
+
+    -- viewer = { app = "zathura" }, -- only "zathura"
+    -- viewer = { executeable = ..., args = {...} }
+
+    builder = {
+      app = "latexmk",
+      on_save = true,
+      forward_search_after = false,
+    },
+    -- Or set the builder manually, with
+    -- builder = { executeable = ... , args = {...} }
+
+    -- For some possible functions see |TexLab.action| and |TexLab.snippet|.
+    mappings = tex.mappings({
+      -- table with: ["(input keys)"] = (action)
+      ["<F5>"] = tex.action.build(),
+      ["<F6>"] = tex.action.forward_search(),
+      ["<A-t>"] = tex.action.open_toc({ of = "document" }),
+      ["<A-a>"] = tex.action.map_environment_names({
+        map = {
+          ["equation"] = "align",
+          ["equation*"] = "align*",
+          ["align*"] = "equation*",
+          ["align"] = "equation",
+        },
+        strategy = "first-match",
+      }),
+      ["<A-s>"] = tex.action.toggle_environment_star({
+        only = { "equation", "align" },
+        strategy = "first-match",
+      }),
+    }, {
+      ["<mode>"] = { "i" }, -- Set mode to apply to all mappings in this table.
+      -- ["<opts>"] the 4th parameter to |vim.keymap.set()|, default: {}
+      ["<A-e>"] = tex.snippet.equation(),
+      ["<A-b>"] = tex.snippet.begin_end(),
+    }),
+  })
+<
+
+
+==============================================================================
+------------------------------------------------------------------------------
+                                                             *TexLab.mappings()*
+                            `TexLab.mappings`({...})
+Create keymaps
+Parameters~
+{...} `(table)` Keys:
+- ["<mode>"]: the mode in which the mapping works. (default: {"n"})
+- ["<opts>"]: the options for the mapping. (default: {})
+- [lhr]=rhs: the mappings. All mappings of a table use the same <mode> and <opts>.
+Return~
+`(table)` That contains the mappings. Use `TexLab.mappings.__apply` to apply the mappings.
+
+
+==============================================================================
+------------------------------------------------------------------------------
+                                                                *TexLab.snippet*
+SNIPPETS
+
+Snippets are small pieces of code that can be inserted into the document.
+To use snippets the `snippet` option must be set in |TexLab.setup()|.
+
+An example with snippet engine `snippy` and mapping `<A-e>` to the snippet `equation` is:
+>lua
+ local tex = require("texlab-tools")
+ tex.setup({
+   snippet = { engine = "snippy" },
+   -- ...,
+   mappings = tex.mappings {
+     ["<mode>"] = { "n", "i" },
+     ["<A-e>"] = tex.snippet.equation(),
+     -- ...
+   },
+ })
+<
+
+Any function in this module can be used as in the above example.
+However, some may require additional arguments. For example:
+>lua
+tex.snippet.environment("test", "Test: $0")
+<
+creates a snippet that expands to:
+>tex
+\begin{test}
+    Test: |
+\end{test}
+<
+
+------------------------------------------------------------------------------
+                                                  *TexLab.snippet.new_snippet()*
+                      `TexLab.snippet.new_snippet`({body})
+Create a new snippet.
+Parameters~
+{body} `(string)` The body of the snippet in lsp snippet format.
+`TexLab.snippet.new_snippet("\\label{eq:$1}")` is a snippet for:
+>tex
+ \label{eq:|}
+<
+
+------------------------------------------------------------------------------
+                                                  *TexLab.snippet.environment()*
+                  `TexLab.snippet.environment`({name}, {body})
+Snippet that inserts an environment.
+Parameters~
+{name} `(string)` The name of the environment.
+{body} `(string)` | nil The body of the environment. Defaults to "\t$0".
+>
+\begin{<name>}
+    <body>
+\end{<name>}
+<
+
+------------------------------------------------------------------------------
+                                                    *TexLab.snippet.begin_end()*
+                          `TexLab.snippet.begin_end`()
+Snippet that inserts an environment. This snippet has a placeholder for the environment name.
+
+------------------------------------------------------------------------------
+                                                     *TexLab.snippet.equation()*
+                          `TexLab.snippet.equation`()
+Snippet that inserts an `equation` environment.
+
+------------------------------------------------------------------------------
+                                                    *TexLab.snippet.enumerate()*
+                          `TexLab.snippet.enumerate`()
+Snippet inserts an `enumerate` environment.
+
+------------------------------------------------------------------------------
+                                                      *TexLab.snippet.itemize()*
+                           `TexLab.snippet.itemize`()
+Snippet inserts an `itemize` environment.
+
+
+==============================================================================
+------------------------------------------------------------------------------
+                                                                 *TexLab.action*
+                                `TexLab.action`
+There are different actions that can be performed.
+An example, that maps `<F5>` to build and `<F6>` to forward search is:
+>lua
+ local tex = require("texlab-tools")
+ tex.setup({
+   mappings = tex.mappings({
+     ["<F5>"] = tex.action.build(),
+     ["<F6>"] = tex.action.forward_search(),
+   }),
+ })
+<
+To make the mapping available in insert mode set `["<mode>"] = { "n", "i" }` table.
+
+------------------------------------------------------------------------------
+                                                         *TexLab.action.build()*
+                            `TexLab.action.build`()
+Starts a build.
+
+------------------------------------------------------------------------------
+                                                *TexLab.action.forward_search()*
+                        `TexLab.action.forward_search`()
+Performs a forward search. (This has to be configured in the texlab server)
+
+------------------------------------------------------------------------------
+                                                      *TexLab.action.open_toc()*
+                        `TexLab.action.open_toc`({opts})
+Opens the table of contents in a telescope picker.
+Parameters~
+{opts} `(table)` Keys:
+- `from`: "document" or "workspace" (default: "document")
+  Controls whether to show the symbols from the current document or from the entire workspace.
+
+------------------------------------------------------------------------------
+                                         *TexLab.action.map_environment_names()*
+                 `TexLab.action.map_environment_names`({opts})
+Modify environment names around the cursor.
+Parameters~
+{opts} `(table)` Keys:
+- `map`: (function(name):name)|table Function that maps the old name to the new name. (required)
+- `filter`: (function(name):boolean)|nil Function to filter the environments. (default: nil)
+- `strategy`: "first"|"first-match" (default: "first")
+
+------------------------------------------------------------------------------
+                                       *TexLab.action.toggle_environment_star()*
+                `TexLab.action.toggle_environment_star`({opts})
+Modify the star on an environment.
+Parameters~
+{opts} `(table|nil)` Keys:
+- 'only': table|nil List of environments to modify. (default: nil)
+- 'except': table|nil List of environments to not modify. (default: nil)
+- 'strategy': "first"|"first-match" (default: "first")
+Only set one of `only` or `except`.
+
+
+ vim:tw=78:ts=8:noet:ft=help:norl:
