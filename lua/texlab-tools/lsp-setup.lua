@@ -56,12 +56,4 @@ function M.setup(opts)
   require("lspconfig").texlab.setup(server_opts)
 end
 
-function M.__do_fwd_search(line, file, pdf)
-  print(vim.inspect({
-    line = line,
-    file = file,
-    pdf = pdf,
-  }))
-end
-
 return M
