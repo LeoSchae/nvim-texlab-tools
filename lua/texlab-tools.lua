@@ -24,6 +24,12 @@ TexLab.snippet = require("texlab-tools.snippet")
 TexLab.action = require("texlab-tools.action")
 TexLab.mappings = require("texlab-tools.mappings")
 
+-- Setup the functions that handle forward and inverse search
+local __viewer = require("texlab-tools.viewer")
+TexLab.__forward_search = __viewer.__forward
+TexLab.__inverse_search = __viewer.__inverse
+
+
 --- Setup the texlab-tools plugin
 --- See |TexLab.configuration.example| for an example config.
 ---
@@ -33,7 +39,7 @@ TexLab.mappings = require("texlab-tools.mappings")
 ---    Available options: "snippy", "vsnip", "luasnip", "ultisnips"
 ---
 ---  - `viewer.app` string|nil: The application to use for pdf viewing.
----    For now only "zathura" is supported.
+---    For now only "zathura" and "okular" are supported.
 ---
 ---  - `builder.app` (string)|nil: The application to use for building. (default: "latexmk")
 ---    For now only "latexmk" is supported.
@@ -66,6 +72,9 @@ function TexLab.setup(opts)
 
   -- LSP setup
   require("texlab-tools.lsp-setup").setup(opts)
+
+  -- Inverse search
+  __viewer._setup_viewer(opts.viewer)
 end
 
 TexLab.setup = setmetatable({ __setup = TexLab.setup }, {
@@ -81,5 +90,6 @@ function TexLab.setup.with_example_config(opts)
   opts = vim.tbl_extend("force", require("texlab-tools.example-config").config, opts or {})
   TexLab.setup(opts)
 end
+
 
 return TexLab

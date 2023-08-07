@@ -25,8 +25,7 @@ tex.setup({
   -- snippet = { app = "snippy" }, -- "snippy", "luasnip", "vsnip", "ultisnips"
   -- snippet = { expand = function(body) [expand-fn](body) end },
 
-  -- viewer = { app = "zathura" }, -- only "zathura"
-  -- viewer = { executeable = ..., args = {...} }
+  -- viewer = { app = "zathura" }, -- "zathura", "okular"
 
   builder = {
     app = "latexmk",

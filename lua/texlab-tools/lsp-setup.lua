@@ -1,44 +1,5 @@
 local M = {}
 
-local function VIEWERS()
-  local servername = vim.v.servername
-  return {
-    zathura = {
-      executable = "zathura",
-      args = {
-        "--synctex-editor-command",
-        [[nvim --server ]] ..
-        servername .. [[ --remote-send "<Cmd>:e %%{input}<CR><Cmd>call cursor(%%{line}, 0)<CR>"]],
-        "--synctex-forward",
-        "%l:1:%f",
-        "%p"
-      },
-    },
-    okular = {
-      executable = "okular",
-      args = {
-        --"--editor-cmd", [[nvim --server ]] .. servername .. [[ --remote-send "<Cmd>:e %%f<CR><Cmd>call cursor(%%l, 0)<CR>"]],
-        "--unique",
-        "file:%p#src:%l%f"
-      },
-    },
-  }
-end
-
-local function viewer_opts(viewer)
-  local opts = viewer
-  if viewer.app then
-    local _opts = VIEWERS()[viewer.app]
-    if not opts then
-      error("Viewer not supported: " .. viewer)
-    end
-
-    opts = vim.tbl_extend("force", _opts, viewer)
-    opts.app = nil
-  end
-  return { settings = { texlab = { forwardSearch = opts } } }
-end
-
 local function BUILDERS()
   return {
     latexmk = {
@@ -67,7 +28,6 @@ local function build_opts(builder)
 end
 
 function M.setup(opts)
-  local viewer = opts.viewer
   local builder = opts.builder
   local texlab_opts = opts.texlab_lsp
 
@@ -76,15 +36,32 @@ function M.setup(opts)
   end
 
   local server_opts = texlab_opts or {}
+  server_opts = vim.tbl_deep_extend("force", {
+    settings = {
+      texlab = {
+        -- Handle forward search from lua when the server wants to
+        forwardSearch = {
+          executable = "nvim",
+          args = { "--server", vim.v.servername, "--remote.send",
+            "<cmd>lua require(\"texlab-tools\").__forward_search({line=[[%l]],file=[[%f]],pdf=[[%p]]})<cr>" }
+        }
+      }
+    }
+  }, server_opts)
 
-  if viewer then
-    server_opts = vim.tbl_deep_extend("error", server_opts, viewer_opts(viewer))
-  end
   if builder then
     server_opts = vim.tbl_deep_extend("error", server_opts, build_opts(builder))
   end
 
   require("lspconfig").texlab.setup(server_opts)
+end
+
+function M.__do_fwd_search(line, file, pdf)
+  print(vim.inspect({
+    line = line,
+    file = file,
+    pdf = pdf,
+  }))
 end
 
 return M

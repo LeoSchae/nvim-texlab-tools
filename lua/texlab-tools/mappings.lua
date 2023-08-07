@@ -32,7 +32,6 @@ TexLab.mappings = setmetatable({ __mappings = TexLab.mappings }, {
 function TexLab.mappings.__apply(keymap_args, opts_override)
   opts_override = opts_override or {}
   for _, mapping in ipairs(keymap_args) do
-    print(vim.inspect(mapping))
     vim.keymap.set(mapping[1], mapping[2], mapping[3], vim.tbl_extend("force", mapping[4], opts_override))
   end
 end

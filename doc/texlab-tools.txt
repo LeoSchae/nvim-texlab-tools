@@ -30,7 +30,7 @@ Parameters~
    Available options: "snippy", "vsnip", "luasnip", "ultisnips"
 
  - `viewer.app` string|nil: The application to use for pdf viewing.
-   For now only "zathura" is supported.
+   For now only "zathura" and "okular" are supported.
 
  - `builder.app` (string)|nil: The application to use for building. (default: "latexmk")
    For now only "latexmk" is supported.
@@ -74,8 +74,7 @@ If you want to try from vimscript, use `lua require("texlab-tools").setup.with_e
     -- snippet = { app = "snippy" }, -- "snippy", "luasnip", "vsnip", "ultisnips"
     -- snippet = { expand = function(body) [expand-fn](body) end },
 
-    -- viewer = { app = "zathura" }, -- only "zathura"
-    -- viewer = { executeable = ..., args = {...} }
+    -- viewer = { app = "zathura" }, -- "zathura", "okular"
 
     builder = {
       app = "latexmk",
