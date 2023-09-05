@@ -37,7 +37,7 @@ tex.setup({
 
   -- For some possible functions see |TexLab.action| and |TexLab.snippet|.
   mappings = tex.mappings({
-    mode = {"n", "i"},
+    ["<mode>"] = {"n", "i"},
     -- table with: ["(input keys)"] = (action)
     ["<F5>"] = tex.action.build(),
     ["<F6>"] = tex.action.forward_search(),
