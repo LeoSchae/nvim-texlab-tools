@@ -85,7 +85,7 @@ end
 --- \end{<name>}
 --- <
 function TexLab.snippet.environment(name, body)
-  body = body or "\t$0"
+  body = body or "\t${0:${TM_SELECTED_TEXT}}"
   return TexLab.snippet.new_snippet("\\begin{" .. name .. "}\n" .. body .. "\n\\end{" .. name .. "}")
 end
 
