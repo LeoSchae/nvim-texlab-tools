@@ -56,7 +56,7 @@ tex.setup({
       strategy = "first-match",
     }),
   }, {
-    ["<mode>"] = { "i" }, -- Set mode to apply to all mappings in this table.
+    ["<mode>"] = { "i", "n" }, -- Set mode to apply to all mappings in this table.
     -- ["<opts>"] the 4th parameter to |vim.keymap.set()|, default: {}
     ["<A-e>"] = tex.snippet.equation(),
     ["<A-b>"] = tex.snippet.begin_end(),
