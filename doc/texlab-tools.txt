@@ -42,6 +42,11 @@ Parameters~
    If false, the server is not started. An existing server can be used if it is set up.
 
 ------------------------------------------------------------------------------
+                                                       *TexLab.example_config()*
+                           `TexLab.example_config`()
+Get the example config. See |TexLab.configuration.example|.
+
+------------------------------------------------------------------------------
                                             *TexLab.setup.with_example_config()*
                    `TexLab.setup.with_example_config`({opts})
 Setup the texlab-tools plugin with the exact example config from |TexLab.configuration.example|.
@@ -59,6 +64,7 @@ EXAMPLE CONGIFURATION
 To try this config call
 >lua
  TexLab.setup.with_example_config({
+   -- no_example_warning = true,
    snippet = { app = "snippy" },
    viewer = { app = "zathura" },
    builder = { app = "latexmk" },
@@ -71,7 +77,7 @@ If you want to try from vimscript, use `lua require("texlab-tools").setup.with_e
 
   tex.setup({
     -- To use snippets, set either `snippet.engine` or `snippet.expand`.
-    -- snippet = { app = "snippy" }, -- "snippy", "luasnip", "vsnip", "ultisnips"
+    -- snippet = { app = "vsnip" }, -- "snippy", "luasnip", "vsnip", "ultisnips"
     -- snippet = { expand = function(body) [expand-fn](body) end },
 
     -- viewer = { app = "zathura" }, -- "zathura", "okular"
@@ -86,6 +92,8 @@ If you want to try from vimscript, use `lua require("texlab-tools").setup.with_e
 
     -- For some possible functions see |TexLab.action| and |TexLab.snippet|.
     mappings = tex.mappings({
+      ["<mode>"] = {"n", "i"},
+      -- ["<opts>"] = { noremap = true } -- the 4th parameter to |vim.keymap.set()|, default: {}
       -- table with: ["(input keys)"] = (action)
       ["<F5>"] = tex.action.build(),
       ["<F6>"] = tex.action.forward_search(),
@@ -104,12 +112,31 @@ If you want to try from vimscript, use `lua require("texlab-tools").setup.with_e
         strategy = "first-match",
       }),
     }, {
-      ["<mode>"] = { "i" }, -- Set mode to apply to all mappings in this table.
-      -- ["<opts>"] the 4th parameter to |vim.keymap.set()|, default: {}
+      ["<mode>"] = { "i", "n" }, -- Set mode to apply to all mappings in this table.
       ["<A-e>"] = tex.snippet.equation(),
       ["<A-b>"] = tex.snippet.begin_end(),
+    },
+    {
+      ["<mode>"] = { "v" }, -- Set mode to apply to all mappings in this table.
+      -- These are specific to vsnip:
+      -- ["<A-e>"] = tex.snippet.surround_selection("vsnip", "equation"),
+      -- ["<A-b>"] = tex.snippet.surround_selection("vsnip"),
     }),
   })
+<
+
+------------------------------------------------------------------------------
+Using only the default mappings and custom ones
+>lua
+ TexLab.setup({
+   -- ...
+   mappings = TexLab.mappings.extend(
+     TexLab.example_config().mappings,
+     {
+        -- Add your own mappings here
+     }
+   )
+ })
 <
 
 
@@ -125,6 +152,13 @@ Parameters~
 - [lhr]=rhs: the mappings. All mappings of a table use the same <mode> and <opts>.
 Return~
 `(table)` That contains the mappings. Use `TexLab.mappings.__apply` to apply the mappings.
+
+------------------------------------------------------------------------------
+                                                      *TexLab.mappings.extend()*
+                   `TexLab.mappings.extend`({keymap}, {...})
+Entend a list of keymaps
+@param keymap table The already existing keymap
+@param ... table See `TexLab.mappings`
 
 
 ==============================================================================
@@ -187,23 +221,35 @@ Parameters~
 
 ------------------------------------------------------------------------------
                                                     *TexLab.snippet.begin_end()*
-                          `TexLab.snippet.begin_end`()
+                       `TexLab.snippet.begin_end`({body})
 Snippet that inserts an environment. This snippet has a placeholder for the environment name.
+@param body string | nil The body of the environment. See |TexLab.snippet.environment()|.
 
 ------------------------------------------------------------------------------
                                                      *TexLab.snippet.equation()*
-                          `TexLab.snippet.equation`()
+                       `TexLab.snippet.equation`({body})
 Snippet that inserts an `equation` environment.
+@param body string | nil The body of the environment. See |TexLab.snippet.environment()|.
 
 ------------------------------------------------------------------------------
                                                     *TexLab.snippet.enumerate()*
-                          `TexLab.snippet.enumerate`()
+                       `TexLab.snippet.enumerate`({body})
 Snippet inserts an `enumerate` environment.
+@param body string | nil The body of the environment. Defaults to "\t\\item $0" See |TexLab.snippet.environment()|.
 
 ------------------------------------------------------------------------------
                                                       *TexLab.snippet.itemize()*
-                           `TexLab.snippet.itemize`()
+                        `TexLab.snippet.itemize`({body})
 Snippet inserts an `itemize` environment.
+@param body string | nil The body of the environment. Defaults to "\t\\item $0"
+
+------------------------------------------------------------------------------
+                                           *TexLab.snippet.surround_selection()*
+             `TexLab.snippet.surround_selection`({engine}, {name})
+Snippet that surrounds the current selection with an environment.
+@param engine string The snippet engine that is used for snippet expansion (as set in config).
+ Currently supported are `vsnip`.
+@param name string | nil The name of the environment. (Defaults to "$1").
 
 
 ==============================================================================

@@ -85,28 +85,52 @@ end
 --- \end{<name>}
 --- <
 function TexLab.snippet.environment(name, body)
-  body = body or "\t${0:${TM_SELECTED_TEXT}}"
+  body = body or "\t$0"
   return TexLab.snippet.new_snippet("\\begin{" .. name .. "}\n" .. body .. "\n\\end{" .. name .. "}")
 end
 
 --- Snippet that inserts an environment. This snippet has a placeholder for the environment name.
-function TexLab.snippet.begin_end()
-  return TexLab.snippet.environment("$1")
+--- @param body string | nil The body of the environment. See |TexLab.snippet.environment()|.
+function TexLab.snippet.begin_end(body)
+  return TexLab.snippet.environment("$1", body)
 end
 
 --- Snippet that inserts an `equation` environment.
-function TexLab.snippet.equation()
-  return TexLab.snippet.environment("equation")
+--- @param body string | nil The body of the environment. See |TexLab.snippet.environment()|.
+function TexLab.snippet.equation(body)
+  return TexLab.snippet.environment("equation", body)
 end
 
 --- Snippet inserts an `enumerate` environment.
-function TexLab.snippet.enumerate()
-  return TexLab.snippet.environment("enumerate", "\t\\item $0")
+--- @param body string | nil The body of the environment. Defaults to "\t\\item $0" See |TexLab.snippet.environment()|.
+function TexLab.snippet.enumerate(body)
+  body = body or "\t\\item $0"
+  return TexLab.snippet.environment("enumerate", body)
 end
 
 --- Snippet inserts an `itemize` environment.
-function TexLab.snippet.itemize()
-  return TexLab.snippet.environment("itemize", "\t\\item $0")
+--- @param body string | nil The body of the environment. Defaults to "\t\\item $0"
+function TexLab.snippet.itemize(body)
+  body = body or "\t\\item $0"
+  return TexLab.snippet.environment("itemize", body)
 end
+
+--- Snippet that surrounds the current selection with an environment.
+--- @param engine string The snippet engine that is used for snippet expansion (as set in config).
+---  Currently supported are `vsnip`.
+--- @param name string | nil The name of the environment. (Defaults to "$1").
+function TexLab.snippet.surround_selection(engine, name)
+  if engine == "vsnip" then
+    local _cut_keys = vim.api.nvim_replace_termcodes('<Plug>(vsnip-cut-text)',true,false,true)
+    local _snippet = TexLab.snippet.environment(name or "$1", "\t${TM_SELECTED_TEXT}$0")
+    return function()
+      vim.api.nvim_feedkeys(_cut_keys, "x", false)
+      return _snippet()
+    end
+  else
+    error("Snippet engine not supported.")
+  end
+end
+
 
 return TexLab.snippet

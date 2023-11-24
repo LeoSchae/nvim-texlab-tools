@@ -81,15 +81,24 @@ TexLab.setup = setmetatable({ __setup = TexLab.setup }, {
   __call = function(self, ...) self.__setup(...) end,
 })
 
+--- Get the example config. See |TexLab.configuration.example|.
+function TexLab.example_config()
+  return require("texlab-tools.example-config").config
+end
+
 --- Setup the texlab-tools plugin with the exact example config from |TexLab.configuration.example|.
 --- If you want to customize it is recommended to copy/paste the example config and change it.
 ---
 ---@param opts table | nil See |TexLab.setup()|.
 --- ! The behaviour of this function is subject to change.
 function TexLab.setup.with_example_config(opts)
-  opts = vim.tbl_extend("force", require("texlab-tools.example-config").config, opts or {})
+  if opts and not opts.no_example_warning then
+    print("texlab-tools: Using example config. This config is subject to change.")
+  end
+  opts = vim.tbl_extend("force", TexLab.example_config(), opts or {})
   TexLab.setup(opts)
 end
+
 
 
 return TexLab

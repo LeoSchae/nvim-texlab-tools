@@ -83,6 +83,10 @@ To get more info about the config and features, use:
 :h TexLab.mappings
 ```
 
+## Documentation
+
+To generate the documentation you can use `nix` with the command `nix run .#doc`.
+
 ## TODO
 
 * Documentation

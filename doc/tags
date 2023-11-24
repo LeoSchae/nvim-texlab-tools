@@ -6,7 +6,9 @@ TexLab.action.map_environment_names()	texlab-tools.txt	/*TexLab.action.map_envir
 TexLab.action.open_toc()	texlab-tools.txt	/*TexLab.action.open_toc()*
 TexLab.action.toggle_environment_star()	texlab-tools.txt	/*TexLab.action.toggle_environment_star()*
 TexLab.configuration	texlab-tools.txt	/*TexLab.configuration*
+TexLab.example_config()	texlab-tools.txt	/*TexLab.example_config()*
 TexLab.mappings()	texlab-tools.txt	/*TexLab.mappings()*
+TexLab.mappings.extend()	texlab-tools.txt	/*TexLab.mappings.extend()*
 TexLab.setup()	texlab-tools.txt	/*TexLab.setup()*
 TexLab.setup.with_example_config()	texlab-tools.txt	/*TexLab.setup.with_example_config()*
 TexLab.snippet	texlab-tools.txt	/*TexLab.snippet*
@@ -16,4 +18,5 @@ TexLab.snippet.environment()	texlab-tools.txt	/*TexLab.snippet.environment()*
 TexLab.snippet.equation()	texlab-tools.txt	/*TexLab.snippet.equation()*
 TexLab.snippet.itemize()	texlab-tools.txt	/*TexLab.snippet.itemize()*
 TexLab.snippet.new_snippet()	texlab-tools.txt	/*TexLab.snippet.new_snippet()*
+TexLab.snippet.surround_selection()	texlab-tools.txt	/*TexLab.snippet.surround_selection()*
 texlab-tools	texlab-tools.txt	/*texlab-tools*

@@ -5,6 +5,7 @@ local M = {}
 --- To try this config call
 --- >lua
 ---  TexLab.setup.with_example_config({
+---    -- no_example_warning = true,
 ---    snippet = { app = "snippy" },
 ---    viewer = { app = "zathura" },
 ---    builder = { app = "latexmk" },
@@ -22,7 +23,7 @@ end
 
 tex.setup({
   -- To use snippets, set either `snippet.engine` or `snippet.expand`.
-  -- snippet = { app = "snippy" }, -- "snippy", "luasnip", "vsnip", "ultisnips"
+  -- snippet = { app = "vsnip" }, -- "snippy", "luasnip", "vsnip", "ultisnips"
   -- snippet = { expand = function(body) [expand-fn](body) end },
 
   -- viewer = { app = "zathura" }, -- "zathura", "okular"
@@ -38,6 +39,7 @@ tex.setup({
   -- For some possible functions see |TexLab.action| and |TexLab.snippet|.
   mappings = tex.mappings({
     ["<mode>"] = {"n", "i"},
+    -- ["<opts>"] = { noremap = true } -- the 4th parameter to |vim.keymap.set()|, default: {}
     -- table with: ["(input keys)"] = (action)
     ["<F5>"] = tex.action.build(),
     ["<F6>"] = tex.action.forward_search(),
@@ -57,11 +59,30 @@ tex.setup({
     }),
   }, {
     ["<mode>"] = { "i", "n" }, -- Set mode to apply to all mappings in this table.
-    -- ["<opts>"] the 4th parameter to |vim.keymap.set()|, default: {}
     ["<A-e>"] = tex.snippet.equation(),
     ["<A-b>"] = tex.snippet.begin_end(),
+  },
+  {
+    ["<mode>"] = { "v" }, -- Set mode to apply to all mappings in this table.
+    -- These are specific to vsnip:
+    -- ["<A-e>"] = tex.snippet.surround_selection("vsnip", "equation"),
+    -- ["<A-b>"] = tex.snippet.surround_selection("vsnip"),
   }),
 })
 --minidoc_afterlines_end
+
+
+--- Using only the default mappings and custom ones
+--- >lua
+---  TexLab.setup({
+---    -- ...
+---    mappings = TexLab.mappings.extend(
+---      TexLab.example_config().mappings,
+---      {
+---         -- Add your own mappings here
+---      }
+---    )
+---  })
+--- <
 
 return M
