@@ -74,7 +74,7 @@ function TexLab.setup(opts)
   require("texlab-tools.lsp-setup").setup(opts)
 
   -- Inverse search
-  __viewer._setup_viewer(opts.viewer)
+  __viewer._setup_from_config(opts)
 end
 
 TexLab.setup = setmetatable({ __setup = TexLab.setup }, {

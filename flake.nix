@@ -8,7 +8,7 @@
     let
       system = "x86_64-linux";
       pkgs = import nixpkgs { inherit system; };
-      neovim-with-plugins = pkgs.neovim.override {
+      neovim-with-mini = pkgs.neovim.override {
         configure = {
           customRC = "";
           packages.plugins = with pkgs.vimPlugins; {
@@ -18,16 +18,18 @@
       };
     in
     {
-      packages.${system}.doc = pkgs.writeShellApplication {
-        name = "texlab-tools-doc";
-        runtimeInputs = [
-          neovim-with-plugins
-        ];
-        text = ''
-          #!${pkgs.stdenv.shell}
-          ${neovim-with-plugins}/bin/nvim -u NONE -c "luafile scripts/docgen.lua" -c qa
-        '';
-        checkPhase = "${pkgs.stdenv.shellDryRun} $target";
+      packages.${system} = {
+        doc = pkgs.writeShellApplication {
+          name = "texlab-tools-doc";
+          runtimeInputs = [
+            neovim-with-mini
+          ];
+          text = ''
+            #!${pkgs.stdenv.shell}
+            ${neovim-with-mini}/bin/nvim -u NONE -c "luafile scripts/docgen.lua" -c qa
+            '';
+          checkPhase = "${pkgs.stdenv.shellDryRun} $target";
+        };
       };
     };
 }

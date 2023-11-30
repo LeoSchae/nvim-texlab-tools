@@ -59,12 +59,12 @@ tex.setup({
     }),
   }, {
     ["<mode>"] = { "i", "n" }, -- Set mode to apply to all mappings in this table.
-    ["<A-e>"] = tex.snippet.equation(),
+    ["<A-e>"] = tex.snippet.environment("equation*"),
     ["<A-b>"] = tex.snippet.begin_end(),
   },
   {
     ["<mode>"] = { "v" }, -- Set mode to apply to all mappings in this table.
-    -- These are specific to vsnip:
+    -- EXPERIMENTAL: These are specific to vsnip:
     -- ["<A-e>"] = tex.snippet.surround_selection("vsnip", "equation"),
     -- ["<A-b>"] = tex.snippet.surround_selection("vsnip"),
   }),

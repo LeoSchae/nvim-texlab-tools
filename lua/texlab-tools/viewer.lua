@@ -2,6 +2,10 @@ local Job = require('plenary.job')
 
 local M = {}
 
+-- Returns a command that the viewer can execute to jump to the correct file
+-- opts = { file, line } where:
+--   file = the placeholeder for the filename (e.g. "%f" for okular or "%{input}" for zathura)
+--   line = the placeholder for the line number (e.g. "%l" for okular or "%{line}" for zathura)
 local function __inverse_cmd(opts)
   return "nvim --server " ..
       vim.v.servername ..
@@ -9,78 +13,46 @@ local function __inverse_cmd(opts)
       opts.file .. "]],line=" .. opts.line .. "})<cr>\""
 end
 
--- okular is a bot more complicated
--- the --unique flag will not work if okular is already running
--- and the --editor-cmd is set.
--- So first set --editor-cmd on the first launch and then
--- use --unique.
-local __okular_is_running = false
-local function okular_forward(opts)
-  local target = 'file:' .. opts.pdf .. '#src:' .. opts.line .. ' ' .. opts.file
-  if not __okular_is_running then
-    Job:new({
-      command = 'okular',
-      args = {
-        "--unique",
-        "--editor-cmd",
-        __inverse_cmd({ file = "%f", line = "%l" }),
-        target
-      },
-      on_exit = function()
-        __okular_is_running = false
-      end,
-    }):start()
-    __okular_is_running = true
+-- Has the form
+-- { forward } where:
+--   forward = function(opts) where opts = { line, file, pdf, inverse_cmd({line, file}) }
+local _viewer = nil
+
+function M._set_viewer(viewer)
+  if viewer == "okular" then
+    _viewer = require("texlab-tools.viewer.okular")
+  elseif viewer == "zathura" then
+    _viewer = require("texlab-tools.viewer.zathura")
   else
-    Job:new({
-      command = 'okular',
-      args = {
-        "--unique",
-        target
-      },
-    }):start()
+    print("Unknown viewer: " .. viewer)
   end
 end
 
-local function zathura_forward(opts)
-  Job:new({
-    command = 'zathura',
-    args = {
-      "--synctex-editor-command",
-      __inverse_cmd({ file = "%{input}", line = "%{line}" }),
-      "--synctex-forward",
-      opts.line .. ":1:" .. opts.file,
-      opts.pdf
-    },
-  }):start()
-end
-
-local current_forward = nil
-
-function M._setup_viewer(viewer)
-  if not viewer then
+function M._setup_from_config(config)
+  if not config or not config.viewer then
     return
   end
 
-  if viewer.app == "okular" then
-    current_forward = okular_forward
-  elseif viewer.app == "zathura" then
-    current_forward = zathura_forward
-  else
-    print("Unknown viewer: " .. viewer.app)
+  if config.viewer.app then
+    M._set_viewer(config.viewer.app)
   end
 end
 
 -- { line, file, pdf }
 function M.__forward(opts)
-  if not current_forward then
+  if not _viewer then
     print("No viewer set")
     return
   end
-  current_forward(opts)
+  _viewer.forward({
+    line = opts.line,
+    file = opts.file,
+    pdf = opts.pdf,
+    inverse_cmd = __inverse_cmd
+  })
 end
 
--- { line, file }
+-- { line, file } called from __inverse_cmd
 function M.__inverse(opts)
   vim.cmd("e " .. opts.file)
   vim.cmd("" .. opts.line)
