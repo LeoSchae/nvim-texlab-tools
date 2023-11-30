@@ -20,9 +20,9 @@ Some tooling around the texlab language server and LaTeX.
 To use the example keybindings:
 ```lua
 require("texlab-tools").setup.with_example_config({
-  snippet = { app = "snippy" },
-  builder = { app = "latexmk" },
-  viewer = { app = "zathura"}
+  snippet = "vsnip",
+  viewer = "zathura",
+  builder = "latexmk"
 })
 ```
 This is equivalent to:
@@ -31,11 +31,11 @@ This is equivalent to:
 
   tex.setup({
     -- To use snippets, set either `snippet` or `snippet.expand`.
-    -- snippet = "snippy", -- "snippy", "luasnip", "vsnip", "ultisnips"
+    snippet = "vsnip", -- "snippy", "luasnip", "vsnip", "ultisnips"
     -- snippet = { expand = function(body) [expand-fn](body) end },
 
     -- zathura and okular should have working forward and inverse search out of the box!
-    -- viewer = "zathura", -- "zathura", "okular"
+    viewer = "zathura", -- "zathura", "okular"
 
     -- builder = "latexmk",
     builder = {
