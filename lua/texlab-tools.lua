@@ -66,9 +66,7 @@ function TexLab.setup(opts)
   vim.api.nvim_create_autocmd("LspAttach", { callback = lsp_attach, group = group })
 
   -- Snippets
-  if opts.snippet then
-    TexLab.snippet.__apply_setup(opts.snippet)
-  end
+  TexLab.snippet._setup_from_config(opts)
 
   -- LSP setup
   require("texlab-tools.lsp-setup").setup(opts)
@@ -98,7 +96,5 @@ function TexLab.setup.with_example_config(opts)
   opts = vim.tbl_extend("force", TexLab.example_config(), opts or {})
   TexLab.setup(opts)
 end
-
-
 
 return TexLab

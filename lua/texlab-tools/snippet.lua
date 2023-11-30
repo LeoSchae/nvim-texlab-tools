@@ -37,20 +37,38 @@ TexLab.snippet = {}
 
 local snippet_expand
 
-function TexLab.snippet.__apply_setup(snippet)
-  if snippet.expand then
-    snippet_expand = snippet.expand
-  elseif snippet.app then
-    if snippet.app == "snippy" then
+function TexLab.snippet._setup_from_config(main_config)
+  if not main_config or not main_config.snippet then
+    return
+  end
+
+  local config = main_config.snippet
+  if type(config) == "string" then
+    config = {config}
+  end
+
+  if type(config) ~= "table" then
+    error("Invalid snippet config.")
+  end
+   
+
+  if #config ~= 0 then
+    local engine = config[1]
+
+    if engine == "snippy" then
       snippet_expand = require("snippy").expand_snippet
-    elseif snippet.app == "luasnip" then
+    elseif engine == "luasnip" then
       snippet_expand = require("luasnip").lsp_expand
-    elseif snippet.app == "vsnip" then
+    elseif engine == "vsnip" then
       snippet_expand = function(body) vim.fn["vsnip#anonymous"](body) end
-    elseif snippet.app == "ultisnips" then
+    elseif engine == "ultisnips" then
       snippet_expand = function(body) vim.fn["UltiSnips#Anon"](body) end
     else
-      error("Unknown snippet application: " .. snippet.app)
+      error("Unknown snippet engine: " .. engine)
+    end
+  else
+    if config.expand then
+      snippet_expand = config.expand
     end
   end
 end

@@ -30,21 +30,19 @@ This is equivalent to:
   local tex = require("texlab-tools")
 
   tex.setup({
-    -- To use snippets, set either `snippet.engine` or `snippet.expand`.
-    -- snippet = { app = "snippy" }, -- "snippy", "luasnip", "vsnip", "ultisnips"
+    -- To use snippets, set either `snippet` or `snippet.expand`.
+    -- snippet = "snippy", -- "snippy", "luasnip", "vsnip", "ultisnips"
     -- snippet = { expand = function(body) [expand-fn](body) end },
 
-    -- zathura should have working forward and inverse search out of the box!
-    -- viewer = { app = "zathura" }, -- only "zathura"
-    -- viewer = { executeable = ..., args = {...} } -- for manual setup
+    -- zathura and okular should have working forward and inverse search out of the box!
+    -- viewer = "zathura", -- "zathura", "okular"
 
+    -- builder = "latexmk",
     builder = {
-      app = "latexmk",
+      "latexmk",
       on_save = true,
       forward_search_after = false,
     },
-    -- Or set the builder manually, with
-    -- builder = { executeable = ... , args = {...} }
 
     -- For some possible functions see |TexLab.action| and |TexLab.snippet|.
     mappings = tex.mappings({

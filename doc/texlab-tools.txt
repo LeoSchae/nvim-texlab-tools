@@ -76,14 +76,14 @@ If you want to try from vimscript, use `lua require("texlab-tools").setup.with_e
   local tex = require("texlab-tools")
 
   tex.setup({
-    -- To use snippets, set either `snippet.engine` or `snippet.expand`.
-    -- snippet = { app = "vsnip" }, -- "snippy", "luasnip", "vsnip", "ultisnips"
+    -- To use snippets, set either `snippet` or `snippet.expand`.
+    -- snippet = "vsnip", -- "snippy", "luasnip", "vsnip", "ultisnips"
     -- snippet = { expand = function(body) [expand-fn](body) end },
 
-    -- viewer = { app = "zathura" }, -- "zathura", "okular"
+    -- viewer = "zathura", -- "zathura", "okular"
 
     builder = {
-      app = "latexmk",
+      "latexmk",
       on_save = true,
       forward_search_after = false,
     },
@@ -113,12 +113,12 @@ If you want to try from vimscript, use `lua require("texlab-tools").setup.with_e
       }),
     }, {
       ["<mode>"] = { "i", "n" }, -- Set mode to apply to all mappings in this table.
-      ["<A-e>"] = tex.snippet.equation(),
+      ["<A-e>"] = tex.snippet.environment("equation*"),
       ["<A-b>"] = tex.snippet.begin_end(),
     },
     {
       ["<mode>"] = { "v" }, -- Set mode to apply to all mappings in this table.
-      -- These are specific to vsnip:
+      -- EXPERIMENTAL: These are specific to vsnip:
       -- ["<A-e>"] = tex.snippet.surround_selection("vsnip", "equation"),
       -- ["<A-b>"] = tex.snippet.surround_selection("vsnip"),
     }),

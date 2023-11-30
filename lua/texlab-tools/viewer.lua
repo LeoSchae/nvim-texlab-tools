@@ -28,13 +28,19 @@ function M._set_viewer(viewer)
   end
 end
 
-function M._setup_from_config(config)
-  if not config or not config.viewer then
+function M._setup_from_config(main_config)
+  if not main_config or not main_config.viewer then
     return
   end
 
-  if config.viewer.app then
-    M._set_viewer(config.viewer.app)
+  local config = main_config.viewer
+
+  if type(config) == "string" then
+    M._set_viewer(config)
+  elseif type(config) == "table" then
+    if #config ~= 0 then
+      M.set_viewer(config[1])
+    end
   end
 end
 

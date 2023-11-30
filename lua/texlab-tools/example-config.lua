@@ -22,14 +22,14 @@ end
 --minidoc_replace_end
 
 tex.setup({
-  -- To use snippets, set either `snippet.engine` or `snippet.expand`.
-  -- snippet = { app = "vsnip" }, -- "snippy", "luasnip", "vsnip", "ultisnips"
+  -- To use snippets, set either `snippet` or `snippet.expand`.
+  -- snippet = "vsnip", -- "snippy", "luasnip", "vsnip", "ultisnips"
   -- snippet = { expand = function(body) [expand-fn](body) end },
 
-  -- viewer = { app = "zathura" }, -- "zathura", "okular"
+  -- viewer = "zathura", -- "zathura", "okular"
 
   builder = {
-    app = "latexmk",
+    "latexmk",
     on_save = true,
     forward_search_after = false,
   },

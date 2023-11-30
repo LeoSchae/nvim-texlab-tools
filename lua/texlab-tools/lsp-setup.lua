@@ -10,21 +10,29 @@ local function BUILDERS()
 end
 
 local function build_opts(builder)
-  local opts = builder
-  if builder.app then
-    local _opts = BUILDERS()[builder.app]
-    if not opts then
-      error("Builder not supported: " .. builder)
+
+  if type(builder) == "string" then
+    builder = { builder }
+  end
+
+  local lsp_opts = {}
+
+  -- If has first element then use it as builder name
+  if #builder ~= 0 then
+    local _opts = BUILDERS()[builder[1]]
+    if not _opts then
+      error("Builder not supported: " .. builder[1])
     end
 
-    opts = vim.tbl_extend("force", _opts, builder)
-    opts.app = nil
+    lsp_opts = _opts
   end
+
   -- onsave defaults to true
-  opts.onSave = not (opts.onSave == false or opts.on_save == false)
+  lsp_opts.onSave = not (builder.onSave == false or builder.on_save == false)
   -- forward search after defaults false
-  opts.forwardSearchAfter = opts.forwardSearchAfter or opts.forward_search_after
-  return { settings = { texlab = { build = opts } } }
+  lsp_opts.forwardSearchAfter = builder.forwardSearchAfter or builder.forward_search_after
+
+  return { settings = { texlab = { build = lsp_opts } } }
 end
 
 function M.setup(opts)
