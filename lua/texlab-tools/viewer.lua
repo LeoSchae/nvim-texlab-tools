@@ -1,67 +1,51 @@
-local Job = require('plenary.job')
-
 local M = {}
 
--- Returns a command that the viewer can execute to jump to the correct file
--- opts = { file, line } where:
---   file = the placeholeder for the filename (e.g. "%f" for okular or "%{input}" for zathura)
---   line = the placeholder for the line number (e.g. "%l" for okular or "%{line}" for zathura)
-local function __inverse_cmd(opts)
-  return "nvim --server " ..
-      vim.v.servername ..
-      " --remote-send \"<cmd>lua require('texlab-tools').__inverse_search({file=[[" ..
-      opts.file .. "]],line=" .. opts.line .. "})<cr>\""
-end
+function M.setup(config)
+  
+  local viewer = {
+    __forward = function()
+      print("Forward search not configured")
+    end,
+    __inverse = function(options)
+      vim.cmd("e " .. options.file)
+      vim.cmd("" .. options.line)
+    end,
+  }
 
--- Has the form
--- { forward } where:
---   forward = function(opts) where opts = { line, file, pdf, inverse_cmd({line, file}) }
-local _viewer = nil
-
-function M._set_viewer(viewer)
-  if viewer == "okular" then
-    _viewer = require("texlab-tools.viewer.okular")
-  elseif viewer == "zathura" then
-    _viewer = require("texlab-tools.viewer.zathura")
-  else
-    print("Unknown viewer: " .. viewer)
+  if not config or not config.viewer then
+    return viewer
   end
-end
-
-function M._setup_from_config(main_config)
-  if not main_config or not main_config.viewer then
-    return
-  end
-
-  local config = main_config.viewer
-
+  
+  config = config.viewer
   if type(config) == "string" then
-    M._set_viewer(config)
-  elseif type(config) == "table" then
-    if #config ~= 0 then
-      M.set_viewer(config[1])
+    config = { config }
+  elseif type(config) ~= "table" then
+    print("Invalid viewer config")
+    return viewer
+  end
+
+  -- set config defaults if editor is set by name
+  if #config ~= 0 then
+    config = require("texlab-tools.viewer." .. config[1]).config(config)
+  end
+
+  -- setup forward (and inverse) search
+  if config.forward then
+    local forward = config.forward
+    local inverse_command = function(options)
+      return "nvim --server " .. vim.v.servername .. " --remote-send \"<cmd>lua require('texlab-tools').__inverse_search({file=[[" .. options.file .. "]],line=" .. options.line .. "})<cr>\""
+    end
+    viewer.__forward = function(options)
+      forward({
+        line = options.line,
+        file = options.file,
+        pdf = options.pdf,
+        inverse_cmd = inverse_command
+      })
     end
   end
-end
 
--- { line, file, pdf }
-function M.__forward(opts)
-  if not _viewer then
-    print("No viewer set")
-    return
-  end
-  _viewer.forward({
-    line = opts.line,
-    file = opts.file,
-    pdf = opts.pdf,
-    inverse_cmd = __inverse_cmd
-  })
-end
-
--- { line, file } called from __inverse_cmd
-function M.__inverse(opts)
-  vim.cmd("e " .. opts.file)
-  vim.cmd("" .. opts.line)
+  return viewer
 end
 
 return M

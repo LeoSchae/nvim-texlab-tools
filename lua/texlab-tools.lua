@@ -25,9 +25,9 @@ TexLab.action = require("texlab-tools.action")
 TexLab.mappings = require("texlab-tools.mappings")
 
 -- Setup the functions that handle forward and inverse search
-local __viewer = require("texlab-tools.viewer")
-TexLab.__forward_search = __viewer.__forward
-TexLab.__inverse_search = __viewer.__inverse
+local __viewer = require("texlab-tools.viewer").setup()
+TexLab.__forward_search = function(...) __viewer.__forward(...) end
+TexLab.__inverse_search = function(...) __viewer.__inverse(...) end
 
 
 --- Setup the texlab-tools plugin
@@ -72,7 +72,7 @@ function TexLab.setup(opts)
   require("texlab-tools.lsp-setup").setup(opts)
 
   -- Inverse search
-  __viewer._setup_from_config(opts)
+  __viewer = require("texlab-tools.viewer").setup(opts)
 end
 
 TexLab.setup = setmetatable({ __setup = TexLab.setup }, {
