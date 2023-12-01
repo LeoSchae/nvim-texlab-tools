@@ -26,13 +26,13 @@ See |TexLab.configuration.example| for an example config.
 Parameters~
 {opts} `(table)` | nil Important keys:
 
- - `snippet.app` string|nil: The application to use for snippet insertion.
+ - `snippet` string|table: The application to use for snippet insertion.
    Available options: "snippy", "vsnip", "luasnip", "ultisnips"
 
- - `viewer.app` string|nil: The application to use for pdf viewing.
+ - `viewer` string|nil: The application to use for pdf viewing.
    For now only "zathura" and "okular" are supported.
 
- - `builder.app` (string)|nil: The application to use for building. (default: "latexmk")
+ - `builder` (string)|nil: The application to use for building. (default: "latexmk")
    For now only "latexmk" is supported.
 
  - `mappings` table|nil: Mappings that are added once TexLab attaches to a buffer.
@@ -78,7 +78,14 @@ If you want to try from vimscript, use `lua require("texlab-tools").setup.with_e
   tex.setup({
     -- To use snippets, set either `snippet` or `snippet.expand`.
     -- snippet = "vsnip", -- "snippy", "luasnip", "vsnip", "ultisnips"
-    -- snippet = { expand = function(body) [expand-fn](body) end },
+    -- snippet = {
+    --   expand = function(body) vim.fn["vsnip#anonymous"](body) end,
+    --   -- Optional:
+    --   cut_text = function()
+    --     vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('<Plug>(vsnip-cut-text)',true,false,true),"x",false)
+    --   end,
+    --   cut_text_placeholder = function() return "${TM_SELECTED_TEXT}" end,
+    -- },
 
     -- viewer = "zathura", -- "zathura", "okular"
 
@@ -87,8 +94,6 @@ If you want to try from vimscript, use `lua require("texlab-tools").setup.with_e
       on_save = true,
       forward_search_after = false,
     },
-    -- Or set the builder manually, with
-    -- builder = { executeable = ... , args = {...} }
 
     -- For some possible functions see |TexLab.action| and |TexLab.snippet|.
     mappings = tex.mappings({
@@ -117,10 +122,10 @@ If you want to try from vimscript, use `lua require("texlab-tools").setup.with_e
       ["<A-b>"] = tex.snippet.begin_end(),
     },
     {
-      ["<mode>"] = { "v" }, -- Set mode to apply to all mappings in this table.
-      -- EXPERIMENTAL: These are specific to vsnip:
-      -- ["<A-e>"] = tex.snippet.surround_selection("vsnip", "equation"),
-      -- ["<A-b>"] = tex.snippet.surround_selection("vsnip"),
+      ["<mode>"] = { "v" }, -- Only visual mode
+      -- For now, these only work with vsnip.
+      ["<A-e>"] = tex.snippet.surround_selection("equation"),
+      ["<A-b>"] = tex.snippet.surround_selection(),
     }),
   })
 <
@@ -169,14 +174,26 @@ SNIPPETS
 Snippets are small pieces of code that can be inserted into the document.
 To use snippets the `snippet` option must be set in |TexLab.setup()|.
 
-An example with snippet engine `snippy` and mapping `<A-e>` to the snippet `equation` is:
+Setting up a custom snippet engine is possible by setting `snippet` to a table with:
+>
+snippet = {
+  expand = function(body) ... end,
+  -- Optional values:
+  cut_text = function() ... end, -- cuts the currently selected text
+  cut_text_placeholder = function() ... end, -- returns placeholder for cut text
+}
+<
+For vsnip one can execute the mapping "<Plug>(vsnip-cut-text)"
+and use "${TM_SELECTED_TEXT}" as cut_text_placeholder.
+
+An example with snippet engine `vsnip` and mapping `<A-e>` to the snippet `equation` is:
 >lua
  local tex = require("texlab-tools")
  tex.setup({
-   snippet = { engine = "snippy" },
+   snippet = "vsnip",
    -- ...,
    mappings = tex.mappings {
-     ["<mode>"] = { "n", "i" },
+     ["<mode>"] = { "n", "i" }, -- mappings in normal and insert mode
      ["<A-e>"] = tex.snippet.equation(),
      -- ...
    },
@@ -245,10 +262,10 @@ Snippet inserts an `itemize` environment.
 
 ------------------------------------------------------------------------------
                                            *TexLab.snippet.surround_selection()*
-             `TexLab.snippet.surround_selection`({engine}, {name})
+                  `TexLab.snippet.surround_selection`({name})
 Snippet that surrounds the current selection with an environment.
-@param engine string The snippet engine that is used for snippet expansion (as set in config).
- Currently supported are `vsnip`.
+(Only works with vsnip when using the default snippet engines.)
+This snippet requires the cut_text and cut_text_placeholder functions to be set in the config.
 @param name string | nil The name of the environment. (Defaults to "$1").
 
 

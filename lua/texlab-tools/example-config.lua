@@ -24,7 +24,14 @@ end
 tex.setup({
   -- To use snippets, set either `snippet` or `snippet.expand`.
   -- snippet = "vsnip", -- "snippy", "luasnip", "vsnip", "ultisnips"
-  -- snippet = { expand = function(body) [expand-fn](body) end },
+  -- snippet = {
+  --   expand = function(body) vim.fn["vsnip#anonymous"](body) end,
+  --   -- Optional:
+  --   cut_text = function()
+  --     vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('<Plug>(vsnip-cut-text)',true,false,true),"x",false)
+  --   end,
+  --   cut_text_placeholder = function() return "${TM_SELECTED_TEXT}" end,
+  -- },
 
   -- viewer = "zathura", -- "zathura", "okular"
 
@@ -33,8 +40,6 @@ tex.setup({
     on_save = true,
     forward_search_after = false,
   },
-  -- Or set the builder manually, with
-  -- builder = { executeable = ... , args = {...} }
 
   -- For some possible functions see |TexLab.action| and |TexLab.snippet|.
   mappings = tex.mappings({
@@ -63,10 +68,10 @@ tex.setup({
     ["<A-b>"] = tex.snippet.begin_end(),
   },
   {
-    ["<mode>"] = { "v" }, -- Set mode to apply to all mappings in this table.
-    -- EXPERIMENTAL: These are specific to vsnip:
-    -- ["<A-e>"] = tex.snippet.surround_selection("equation"),
-    -- ["<A-b>"] = tex.snippet.surround_selection(),
+    ["<mode>"] = { "v" }, -- Only visual mode
+    -- For now, these only work with vsnip.
+    ["<A-e>"] = tex.snippet.surround_selection("equation"),
+    ["<A-b>"] = tex.snippet.surround_selection(),
   }),
 })
 --minidoc_afterlines_end

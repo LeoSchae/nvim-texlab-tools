@@ -6,14 +6,26 @@
 --- Snippets are small pieces of code that can be inserted into the document.
 --- To use snippets the `snippet` option must be set in |TexLab.setup()|.
 ---
----@example An example with snippet engine `snippy` and mapping `<A-e>` to the snippet `equation` is:
+--- Setting up a custom snippet engine is possible by setting `snippet` to a table with:
+--- >
+--- snippet = {
+---   expand = function(body) ... end,
+---   -- Optional values:
+---   cut_text = function() ... end, -- cuts the currently selected text
+---   cut_text_placeholder = function() ... end, -- returns placeholder for cut text
+--- }
+--- <
+--- For vsnip one can execute the mapping "<Plug>(vsnip-cut-text)"
+--- and use "${TM_SELECTED_TEXT}" as cut_text_placeholder.
+---
+---@example An example with snippet engine `vsnip` and mapping `<A-e>` to the snippet `equation` is:
 --- >lua
 ---  local tex = require("texlab-tools")
 ---  tex.setup({
----    snippet = { engine = "snippy" },
+---    snippet = "vsnip",
 ---    -- ...,
 ---    mappings = tex.mappings {
----      ["<mode>"] = { "n", "i" },
+---      ["<mode>"] = { "n", "i" }, -- mappings in normal and insert mode
 ---      ["<A-e>"] = tex.snippet.equation(),
 ---      -- ...
 ---    },
@@ -150,6 +162,8 @@ function TexLab.snippet.itemize(body)
 end
 
 --- Snippet that surrounds the current selection with an environment.
+--- (Only works with vsnip when using the default snippet engines.)
+--- This snippet requires the cut_text and cut_text_placeholder functions to be set in the config.
 --- @param name string | nil The name of the environment. (Defaults to "$1").
 function TexLab.snippet.surround_selection(name)
   return function()
