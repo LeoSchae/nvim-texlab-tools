@@ -65,8 +65,8 @@ tex.setup({
   {
     ["<mode>"] = { "v" }, -- Set mode to apply to all mappings in this table.
     -- EXPERIMENTAL: These are specific to vsnip:
-    -- ["<A-e>"] = tex.snippet.surround_selection("vsnip", "equation"),
-    -- ["<A-b>"] = tex.snippet.surround_selection("vsnip"),
+    -- ["<A-e>"] = tex.snippet.surround_selection("equation"),
+    -- ["<A-b>"] = tex.snippet.surround_selection(),
   }),
 })
 --minidoc_afterlines_end

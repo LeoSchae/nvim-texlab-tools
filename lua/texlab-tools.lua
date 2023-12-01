@@ -35,13 +35,13 @@ TexLab.__inverse_search = function(...) __viewer.__inverse(...) end
 ---
 ---@param opts table | nil Important keys:
 ---
----  - `snippet.app` string|nil: The application to use for snippet insertion.
+---  - `snippet` string|table: The application to use for snippet insertion.
 ---    Available options: "snippy", "vsnip", "luasnip", "ultisnips"
 ---
----  - `viewer.app` string|nil: The application to use for pdf viewing.
+---  - `viewer` string|nil: The application to use for pdf viewing.
 ---    For now only "zathura" and "okular" are supported.
 ---
----  - `builder.app` (string)|nil: The application to use for building. (default: "latexmk")
+---  - `builder` (string)|nil: The application to use for building. (default: "latexmk")
 ---    For now only "latexmk" is supported.
 ---
 ---  - `mappings` table|nil: Mappings that are added once TexLab attaches to a buffer.
@@ -66,7 +66,7 @@ function TexLab.setup(opts)
   vim.api.nvim_create_autocmd("LspAttach", { callback = lsp_attach, group = group })
 
   -- Snippets
-  TexLab.snippet._setup_from_config(opts)
+  TexLab.snippet._setup(opts)
 
   -- LSP setup
   require("texlab-tools.lsp-setup").setup(opts)
