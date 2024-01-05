@@ -1,4 +1,8 @@
 TexLab	texlab-tools.txt	/*TexLab*
+TexLab.Keymap:apply()	texlab-tools.txt	/*TexLab.Keymap:apply()*
+TexLab.Keymap:extend()	texlab-tools.txt	/*TexLab.Keymap:extend()*
+TexLab.Keymap:new()	texlab-tools.txt	/*TexLab.Keymap:new()*
+TexLab.Keymap:set()	texlab-tools.txt	/*TexLab.Keymap:set()*
 TexLab.action	texlab-tools.txt	/*TexLab.action*
 TexLab.action.build()	texlab-tools.txt	/*TexLab.action.build()*
 TexLab.action.forward_search()	texlab-tools.txt	/*TexLab.action.forward_search()*
@@ -7,8 +11,6 @@ TexLab.action.open_toc()	texlab-tools.txt	/*TexLab.action.open_toc()*
 TexLab.action.toggle_environment_star()	texlab-tools.txt	/*TexLab.action.toggle_environment_star()*
 TexLab.configuration	texlab-tools.txt	/*TexLab.configuration*
 TexLab.example_config()	texlab-tools.txt	/*TexLab.example_config()*
-TexLab.mappings()	texlab-tools.txt	/*TexLab.mappings()*
-TexLab.mappings.extend()	texlab-tools.txt	/*TexLab.mappings.extend()*
 TexLab.setup()	texlab-tools.txt	/*TexLab.setup()*
 TexLab.setup.with_example_config()	texlab-tools.txt	/*TexLab.setup.with_example_config()*
 TexLab.snippet	texlab-tools.txt	/*TexLab.snippet*

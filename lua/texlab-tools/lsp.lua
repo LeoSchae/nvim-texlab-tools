@@ -193,6 +193,7 @@ end
 local SECTION_KINDS = { 2 }
 -- is only called for symbols with kind in SECTION_KINDS
 local function symbol_to_section(symbol, ctx)
+  print(vim.inspect(symbol))
   -- print keys
   if symbol.location then
     return {

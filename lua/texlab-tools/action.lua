@@ -5,13 +5,14 @@ local TexLab = {}
 --- >lua
 ---  local tex = require("texlab-tools")
 ---  tex.setup({
----    mappings = tex.mappings({
+---    mappings = tex.Keymap:new({
 ---      ["<F5>"] = tex.action.build(),
 ---      ["<F6>"] = tex.action.forward_search(),
 ---    }),
 ---  })
 --- <
---- To make the mapping available in insert mode set `["<mode>"] = { "n", "i" }` table.
+--- To make the mapping available in insert mode use `tex.Keymap:new({{ mode = "i" }, ...})`.
+---@see TexLab.Keymap
 TexLab.action = {}
 
 local tex_lsp = require("texlab-tools.lsp")

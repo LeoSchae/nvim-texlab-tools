@@ -16,13 +16,11 @@
 --- 
 
 
-
-
 local TexLab = {}
 
 TexLab.snippet = require("texlab-tools.snippet")
 TexLab.action = require("texlab-tools.action")
-TexLab.mappings = require("texlab-tools.mappings")
+TexLab.Keymap = require("texlab-tools.keymap")
 
 -- Setup the functions that handle forward and inverse search
 local __viewer = require("texlab-tools.viewer").setup()
@@ -59,7 +57,7 @@ function TexLab.setup(opts)
     if client.name ~= "texlab" then
       return
     end
-    TexLab.mappings.__apply(mappings, { buffer = 0 })
+    TexLab.Keymap.apply(mappings, { buffer = 0 })
   end
 
   local group = vim.api.nvim_create_augroup("texlabtools", { clear = true })
@@ -81,7 +79,7 @@ TexLab.setup = setmetatable({ __setup = TexLab.setup }, {
 
 --- Get the example config. See |TexLab.configuration.example|.
 function TexLab.example_config()
-  return require("texlab-tools.example-config").config
+  return require("texlab-tools.documentation").config
 end
 
 --- Setup the texlab-tools plugin with the exact example config from |TexLab.configuration.example|.

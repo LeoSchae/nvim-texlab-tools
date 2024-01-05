@@ -96,14 +96,13 @@ If you want to try from vimscript, use `lua require("texlab-tools").setup.with_e
     },
 
     -- For some possible functions see |TexLab.action| and |TexLab.snippet|.
-    mappings = tex.mappings({
-      ["<mode>"] = {"n", "i"},
-      -- ["<opts>"] = { noremap = true } -- the 4th parameter to |vim.keymap.set()|, default: {}
+    mappings = tex.Keymap:new({
+      { mode = {"n", "i"} },
       -- table with: ["(input keys)"] = (action)
-      ["<F5>"] = tex.action.build(),
-      ["<F6>"] = tex.action.forward_search(),
-      ["<A-t>"] = tex.action.open_toc({ of = "document" }),
-      ["<A-a>"] = tex.action.map_environment_names({
+      ["<F5>"] = { tex.action.build(), desc = "[TexLab] Build the current tex file"},
+      ["<F6>"] = { tex.action.forward_search(), desc = "[TexLab] Forward search in pdf" },
+      ["<A-t>"] = { tex.action.open_toc({ of = "document" }), desc="[TexLab] Show section list" },
+      ["<A-a>"] = { tex.action.map_environment_names({
         map = {
           ["equation"] = "align",
           ["equation*"] = "align*",
@@ -111,22 +110,22 @@ If you want to try from vimscript, use `lua require("texlab-tools").setup.with_e
           ["align"] = "equation",
         },
         strategy = "first-match",
-      }),
-      ["<A-s>"] = tex.action.toggle_environment_star({
+      }), desc = "[TexLab] Toggle between align and equation" },
+      ["<A-s>"] = { tex.action.toggle_environment_star({
         only = { "equation", "align" },
         strategy = "first-match",
-      }),
+      }), desc = "[TexLab] Add * to closest equation or align" },
     }, {
-      ["<mode>"] = { "i", "n" }, -- Set mode to apply to all mappings in this table.
-      ["<A-e>"] = tex.snippet.environment("equation*"),
-      ["<A-b>"] = tex.snippet.begin_end(),
+      { mode = {"i", "n"} }, -- Set mode to apply to all mappings in this table.
+      ["<A-e>"] = { tex.snippet.environment("equation*"), desc = "[TexLab] Insert equation* environment" },
+      ["<A-b>"] = { tex.snippet.begin_end(), desc = "[TexLab] Insert new environent" },
     },
     {
-      ["<mode>"] = { "v" }, -- Only visual mode
+      { mode = "v" }, -- Only visual mode
       -- For now, these only work with vsnip.
-      ["<A-e>"] = tex.snippet.surround_selection("equation"),
-      ["<A-b>"] = tex.snippet.surround_selection(),
-    }),
+      ["<A-e>"] = { tex.snippet.surround_selection("equation*"), desc = "[TexLab] Surround selection with equation*"},
+      ["<A-b>"] = { tex.snippet.surround_selection(), desc = "[TexLab] Surround selection with environment" },
+    }):set({ silent = true }),
   })
 <
 
@@ -135,35 +134,66 @@ Using only the default mappings and custom ones
 >lua
  TexLab.setup({
    -- ...
-   mappings = TexLab.mappings.extend(
-     TexLab.example_config().mappings,
-     {
+   mappings = TexLab.example_config().mappings:extend({
         -- Add your own mappings here
-     }
-   )
+   })
  })
 <
 
 
 ==============================================================================
 ------------------------------------------------------------------------------
-                                                             *TexLab.mappings()*
-                            `TexLab.mappings`({...})
-Create keymaps
+                                                           *TexLab.Keymap:new()*
+                           `TexLab.Keymap:new`({...})
+Create a new keymap.
 Parameters~
-{...} `(table)` Keys:
-- ["<mode>"]: the mode in which the mapping works. (default: {"n"})
-- ["<opts>"]: the options for the mapping. (default: {})
-- [lhr]=rhs: the mappings. All mappings of a table use the same <mode> and <opts>.
+{...} `(table)` A list of different keymaps.
+A keymap takes the following form:
+>
+  {
+    { mode = <mode>, <def-opts> }, -- This is optional
+    ["<lhs>"] = <rhs>,
+    ["<lhs>"] = {<rhs>, <opts>},
+    -- ...
+  }
+<
+where:
+- <mode>: string | table is a string or list of strings (e.g. "n" or {"n", "v"}). This is the first argument to |vim.keymap.set|.
+- <def-opts>: table is a table of options that will be used for all mappings. This is the 4-th argument to |vim.keymap.set|.
+- <lhs>: string is the left-hand side of the mapping. This is the 2-nd argument to |vim.keymap.set|.
+- <rhs>: function | string is the right-hand side of the mapping. This is the 3-rd argument to |vim.keymap.set|.
+- <opts>: table is a table of options that will be used for this mapping. Overrides any options including the mode.
 Return~
-`(table)` That contains the mappings. Use `TexLab.mappings.__apply` to apply the mappings.
+`(table)` The new keymap.
 
 ------------------------------------------------------------------------------
-                                                      *TexLab.mappings.extend()*
-                   `TexLab.mappings.extend`({keymap}, {...})
-Entend a list of keymaps
-@param keymap table The already existing keymap
-@param ... table See `TexLab.mappings`
+                                                        *TexLab.Keymap:extend()*
+                         `TexLab.Keymap:extend`({...})
+Extend a keymap.
+Parameters~
+{...} `(table)` A list of different keymaps.
+See `TexLab.Keymap:new` for the format of the keymaps.
+Return~
+`(table)` The extended keymap.
+
+------------------------------------------------------------------------------
+                                                           *TexLab.Keymap:set()*
+                          `TexLab.Keymap:set`({opts})
+Set options for a keymap.
+Parameters~
+{opts} `(table)` Overrides mode or options of all mappings in the keymap.
+The map is modified in-place.
+Example: `keymap:set({silent = true})`
+Return~
+`(table)` The modified keymap
+
+------------------------------------------------------------------------------
+                                                         *TexLab.Keymap:apply()*
+                         `TexLab.Keymap:apply`({opts})
+Apply the keymap using |vim.keymap.set|.
+Parameters~
+{opts} `(table)` Overrides mode or options of all mappings in the keymap.
+Example: `keymap:apply({buffer = 0})`
 
 
 ==============================================================================
@@ -192,11 +222,11 @@ An example with snippet engine `vsnip` and mapping `<A-e>` to the snippet `equat
  tex.setup({
    snippet = "vsnip",
    -- ...,
-   mappings = tex.mappings {
-     ["<mode>"] = { "n", "i" }, -- mappings in normal and insert mode
-     ["<A-e>"] = tex.snippet.equation(),
+   mappings = tex.Keymap:new({
+     { mode = {"n", "i"} }, -- mappings in normal and insert mode
+     ["<A-e>"] = tex.snippet.environment("equation"),
      -- ...
-   },
+   }),
  })
 <
 
@@ -278,13 +308,14 @@ An example, that maps `<F5>` to build and `<F6>` to forward search is:
 >lua
  local tex = require("texlab-tools")
  tex.setup({
-   mappings = tex.mappings({
+   mappings = tex.Keymap:new({
      ["<F5>"] = tex.action.build(),
      ["<F6>"] = tex.action.forward_search(),
    }),
  })
 <
-To make the mapping available in insert mode set `["<mode>"] = { "n", "i" }` table.
+To make the mapping available in insert mode use `tex.Keymap:new({{ mode = "i" }, ...})`.
+TexLab.Keymap
 
 ------------------------------------------------------------------------------
                                                          *TexLab.action.build()*

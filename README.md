@@ -44,7 +44,7 @@ An example config might look like:
     },
 
     -- For some possible functions see |TexLab.action| and |TexLab.snippet|.
-    mappings = tex.mappings({
+    mappings = tex.Keymap:new({
       -- table with: ["(input keys)"] = (action)
       ["<F5>"] = tex.action.build(),
       ["<F6>"] = tex.action.forward_search(),
@@ -63,12 +63,12 @@ An example config might look like:
         strategy = "first-match",
       }),
     }, {
-      ["<mode>"] = { "i", "n" }, -- Set mode to apply to all mappings in this table. Default is {"n"}
+      { mode = { "i", "n" } }, -- Set mode to apply to all mappings in this table. Default is {"n"}
       -- ["<opts>"] the 4th parameter to |vim.keymap.set()|, default: {}
       ["<A-e>"] = tex.snippet.equation(),
       ["<A-b>"] = tex.snippet.begin_end(),
     }, {
-      ["<mode>"] = { "v" },
+      { mode = "v" },
       -- For now, the following snippets only work with vsnip
       ["<A-e>"] = tex.snippet.surround_selection("equation"),
       ["<A-b>"] = tex.snippet.surround_selection(), -- Same as passing "$1"
@@ -82,7 +82,7 @@ To get more info about the config and features, use:
 :h TexLab.configuration
 :h TexLab.action
 :h TexLab.snippet
-:h TexLab.mappings
+:h TexLab.Keymap
 ```
 
 ## Documentation

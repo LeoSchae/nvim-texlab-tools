@@ -13,7 +13,7 @@ local M = {}
 --- <
 --- in your `init.lua`. This will setup the keybindings from the example config.
 --- If you want to try from vimscript, use `lua require("texlab-tools").setup.with_example_config`().
----@eval return MiniDoc.code_lang(MiniDoc.afterlines_to_code(MiniDoc.current.eval_section), "lua")
+---@eval return MiniDoc.afterlines_to_code(MiniDoc.current.eval_section, "lua")
 --minidoc_replace_start local tex = require("texlab-tools")
 local tex = vim.tbl_extend("force", {}, require("texlab-tools"))
 tex.setup = function(config)
@@ -42,14 +42,13 @@ tex.setup({
   },
 
   -- For some possible functions see |TexLab.action| and |TexLab.snippet|.
-  mappings = tex.mappings({
-    ["<mode>"] = {"n", "i"},
-    -- ["<opts>"] = { noremap = true } -- the 4th parameter to |vim.keymap.set()|, default: {}
+  mappings = tex.Keymap:new({
+    { mode = {"n", "i"} },
     -- table with: ["(input keys)"] = (action)
-    ["<F5>"] = tex.action.build(),
-    ["<F6>"] = tex.action.forward_search(),
-    ["<A-t>"] = tex.action.open_toc({ of = "document" }),
-    ["<A-a>"] = tex.action.map_environment_names({
+    ["<F5>"] = { tex.action.build(), desc = "[TexLab] Build the current tex file"},
+    ["<F6>"] = { tex.action.forward_search(), desc = "[TexLab] Forward search in pdf" },
+    ["<A-t>"] = { tex.action.open_toc({ of = "document" }), desc="[TexLab] Show section list" },
+    ["<A-a>"] = { tex.action.map_environment_names({
       map = {
         ["equation"] = "align",
         ["equation*"] = "align*",
@@ -57,22 +56,22 @@ tex.setup({
         ["align"] = "equation",
       },
       strategy = "first-match",
-    }),
-    ["<A-s>"] = tex.action.toggle_environment_star({
+    }), desc = "[TexLab] Toggle between align and equation" },
+    ["<A-s>"] = { tex.action.toggle_environment_star({
       only = { "equation", "align" },
       strategy = "first-match",
-    }),
+    }), desc = "[TexLab] Add * to closest equation or align" },
   }, {
-    ["<mode>"] = { "i", "n" }, -- Set mode to apply to all mappings in this table.
-    ["<A-e>"] = tex.snippet.environment("equation*"),
-    ["<A-b>"] = tex.snippet.begin_end(),
+    { mode = {"i", "n"} }, -- Set mode to apply to all mappings in this table.
+    ["<A-e>"] = { tex.snippet.environment("equation*"), desc = "[TexLab] Insert equation* environment" },
+    ["<A-b>"] = { tex.snippet.begin_end(), desc = "[TexLab] Insert new environent" },
   },
   {
-    ["<mode>"] = { "v" }, -- Only visual mode
+    { mode = "v" }, -- Only visual mode
     -- For now, these only work with vsnip.
-    ["<A-e>"] = tex.snippet.surround_selection("equation"),
-    ["<A-b>"] = tex.snippet.surround_selection(),
-  }),
+    ["<A-e>"] = { tex.snippet.surround_selection("equation*"), desc = "[TexLab] Surround selection with equation*"},
+    ["<A-b>"] = { tex.snippet.surround_selection(), desc = "[TexLab] Surround selection with environment" },
+  }):set({ silent = true }),
 })
 --minidoc_afterlines_end
 
@@ -81,12 +80,9 @@ tex.setup({
 --- >lua
 ---  TexLab.setup({
 ---    -- ...
----    mappings = TexLab.mappings.extend(
----      TexLab.example_config().mappings,
----      {
+---    mappings = TexLab.example_config().mappings:extend({
 ---         -- Add your own mappings here
----      }
----    )
+---    })
 ---  })
 --- <
 

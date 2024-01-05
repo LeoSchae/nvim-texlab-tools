@@ -24,11 +24,11 @@
 ---  tex.setup({
 ---    snippet = "vsnip",
 ---    -- ...,
----    mappings = tex.mappings {
----      ["<mode>"] = { "n", "i" }, -- mappings in normal and insert mode
----      ["<A-e>"] = tex.snippet.equation(),
+---    mappings = tex.Keymap:new({
+---      { mode = {"n", "i"} }, -- mappings in normal and insert mode
+---      ["<A-e>"] = tex.snippet.environment("equation"),
 ---      -- ...
----    },
+---    }),
 ---  })
 --- <
 ---
