@@ -9,6 +9,7 @@ function M.setup(config)
         __inverse = function(options)
             vim.cmd("drop " .. options.file)
             vim.cmd("" .. options.line)
+            vim.cmd("normal! zz")
         end,
     }
 
