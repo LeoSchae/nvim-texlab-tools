@@ -1,5 +1,3 @@
-
-
 ---@tag TexLab.snippet
 ---@text SNIPPETS
 ---
@@ -58,7 +56,7 @@ function TexLab.snippet._setup(config)
     config = config.snippet
 
     if type(config) == "string" then
-        config = {config}
+        config = { config }
     elseif type(config) ~= "table" then
         error("Invalid snippet config.")
         return
@@ -74,9 +72,17 @@ function TexLab.snippet._setup(config)
         elseif engine == "luasnip" then
             snippet_engine = {
                 expand = require("luasnip").lsp_expand,
+                cut_text_placeholder = function()
+                    return "${TM_SELECTED_TEXT}"
+                end,
+                cut_text = function()
+                    vim.api.nvim_feedkeys(
+                        vim.api.nvim_replace_termcodes(require("luasnip.util.select").select_keys, true, false, true),
+                        "x", false)
+                end,
             }
         elseif engine == "vsnip" then
-            local _cut_keys = vim.api.nvim_replace_termcodes('<Plug>(vsnip-cut-text)',true,false,true)
+            local _cut_keys = vim.api.nvim_replace_termcodes('<Plug>(vsnip-cut-text)', true, false, true)
             snippet_engine = {
                 expand = function(body) vim.fn["vsnip#anonymous"](body) end,
                 cut_text = function()
@@ -174,6 +180,5 @@ function TexLab.snippet.surround_selection(name)
         TexLab.snippet.environment(name or "$1", "\t" .. snippet_engine.cut_text_placeholder() .. "$0")()
     end
 end
-
 
 return TexLab.snippet
