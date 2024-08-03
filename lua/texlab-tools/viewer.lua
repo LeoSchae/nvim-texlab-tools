@@ -7,7 +7,8 @@ function M.setup(config)
             print("Forward search not configured")
         end,
         __inverse = function(options)
-            vim.cmd("drop " .. options.file)
+            vim.cmd("normal! m'")
+            vim.cmd("keepjumps drop " .. options.file)
             vim.cmd("" .. options.line)
             vim.cmd("normal! zz")
         end,
