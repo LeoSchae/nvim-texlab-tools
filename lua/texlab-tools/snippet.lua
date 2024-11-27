@@ -77,7 +77,7 @@ function TexLab.snippet._setup(config)
                 end,
                 cut_text = function()
                     vim.api.nvim_feedkeys(
-                        vim.api.nvim_replace_termcodes(require("luasnip.util.select").select_keys, true, false, true),
+                        vim.api.nvim_replace_termcodes(require("luasnip.util.select").cut_keys, true, false, true),
                         "x", false)
                 end,
             }

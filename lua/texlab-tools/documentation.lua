@@ -43,35 +43,43 @@ tex.setup({
 
     -- For some possible functions see |TexLab.action| and |TexLab.snippet|.
     mappings = tex.Keymap:new({
-        { mode = {"n", "i"} },
-        -- table with: ["(input keys)"] = (action)
-        ["<F5>"] = { tex.action.build(), desc = "[TexLab] Build the current tex file"},
-        ["<F6>"] = { tex.action.forward_search(), desc = "[TexLab] Forward search in pdf" },
-        ["<A-t>"] = { tex.action.open_toc({ of = "document" }), desc="[TexLab] Show section list" },
-        ["<A-a>"] = { tex.action.map_environment_names({
-            map = {
-                ["equation"] = "align",
-                ["equation*"] = "align*",
-                ["align*"] = "equation*",
-                ["align"] = "equation",
+            { mode = { "n", "i" } },
+            -- table with: ["(input keys)"] = (action)
+            ["<F5>"] = { tex.action.build(), desc = "[TexLab] Build the current tex file" },
+            ["<F6>"] = { tex.action.forward_search(), desc = "[TexLab] Forward search in pdf" },
+            ["<A-t>"] = { tex.action.open_toc({ of = "document" }), desc = "[TexLab] Show section list" },
+            ["<A-a>"] = {
+                tex.action.map_environment_names({
+                    map = {
+                        ["equation"] = "align",
+                        ["align"] = "multline",
+                        ["multline"] = "equation",
+                        ["equation*"] = "align*",
+                        ["align*"] = "multline*",
+                        ["multline*"] = "equation*",
+                    },
+                    strategy = "first-match",
+                }),
+                desc = "[TexLab] Toggle between align and equation"
             },
-            strategy = "first-match",
-        }), desc = "[TexLab] Toggle between align and equation" },
-        ["<A-s>"] = { tex.action.toggle_environment_star({
-            only = { "equation", "align" },
-            strategy = "first-match",
-        }), desc = "[TexLab] Add * to closest equation or align" },
-    }, {
-        { mode = {"i", "n"} }, -- Set mode to apply to all mappings in this table.
-        ["<A-e>"] = { tex.snippet.environment("equation*"), desc = "[TexLab] Insert equation* environment" },
-        ["<A-b>"] = { tex.snippet.begin_end(), desc = "[TexLab] Insert new environent" },
-    },
-    {
-        { mode = "v" }, -- Only visual mode
-        -- For now, these only work with vsnip.
-        ["<A-e>"] = { tex.snippet.surround_selection("equation*"), desc = "[TexLab] Surround selection with equation*"},
-        ["<A-b>"] = { tex.snippet.surround_selection(), desc = "[TexLab] Surround selection with environment" },
-    }):set({ silent = true }),
+            ["<A-s>"] = {
+                tex.action.toggle_environment_star({
+                    only = { "equation", "align" },
+                    strategy = "first-match",
+                }),
+                desc = "[TexLab] Add * to closest equation or align"
+            },
+        }, {
+            { mode = { "i", "n" } }, -- Set mode to apply to all mappings in this table.
+            ["<A-e>"] = { tex.snippet.environment("equation*"), desc = "[TexLab] Insert equation* environment" },
+            ["<A-b>"] = { tex.snippet.begin_end(), desc = "[TexLab] Insert new environent" },
+        },
+        {
+            { mode = "v" }, -- Only visual mode
+            -- For now, these only work with vsnip.
+            ["<A-e>"] = { tex.snippet.surround_selection("equation*"), desc = "[TexLab] Surround selection with equation*" },
+            ["<A-b>"] = { tex.snippet.surround_selection(), desc = "[TexLab] Surround selection with environment" },
+        }):set({ silent = true }),
 })
 --minidoc_afterlines_end
 
