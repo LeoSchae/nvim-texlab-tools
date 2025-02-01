@@ -10,7 +10,6 @@ local function BUILDERS()
 end
 
 local function build_opts(builder)
-
     if type(builder) == "string" then
         builder = { builder }
     end
@@ -25,6 +24,13 @@ local function build_opts(builder)
         end
 
         lsp_opts = _opts
+    end
+
+    if builder.executeable then
+        lsp_opts.executeable = builder.executeable
+    end
+    if builder.args then
+        lsp_opts.args = builder.args
     end
 
     -- onsave defaults to true
@@ -51,7 +57,7 @@ function M.setup(opts)
                 forwardSearch = {
                     executable = "nvim",
                     args = { "--server", vim.v.servername, "--remote.send",
-                    "<cmd>lua require(\"texlab-tools\").__forward_search({line=[[%l]],file=[[%f]],pdf=[[%p]]})<cr>" }
+                        "<cmd>lua require(\"texlab-tools\").__forward_search({line=[[%l]],file=[[%f]],pdf=[[%p]]})<cr>" }
                 }
             }
         }
