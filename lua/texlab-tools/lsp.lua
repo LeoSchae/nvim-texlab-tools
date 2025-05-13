@@ -5,10 +5,10 @@ local M = {}
 
 --- Get texlab for the given or current buffer
 ---@param bufnr number | nil
----@return table | nil: The texlab client
+---@return vim.lsp.Client | nil: The texlab client
 function M.get_texlab(bufnr)
     bufnr = bufnr or 0
-    for _, client in pairs(vim.lsp.get_active_clients { bufnr = bufnr }) do
+    for _, client in pairs(vim.lsp.get_clients { bufnr = bufnr }) do
         if client.name == "texlab" then
             return client
         end
@@ -39,15 +39,15 @@ function M.__build(callback)
         end
     end
 
-    local params = vim.lsp.util.make_position_params()
     local client = M.get_texlab()
-
     if not client then
         callback("No texlab client found")
         return
     end
 
-    client.request("textDocument/build", params, function(err, result)
+    local params = vim.lsp.util.make_position_params(0, client.offset_encoding)
+
+    client:request("textDocument/build", params, function(err, result)
         if err then
             return print("Error building: " .. err)
         end
@@ -74,7 +74,6 @@ local SEARCH_STATUS = {
 --- @param callback function | nil: Callback to call with the result
 function M.__forward_search(callback)
     callback = callback or log_error_callback
-    local params = vim.lsp.util.make_position_params()
     local client = M.get_texlab()
 
     if not client then
@@ -82,7 +81,9 @@ function M.__forward_search(callback)
         return
     end
 
-    client.request("textDocument/forwardSearch", params, function(err, result)
+    local params = vim.lsp.util.make_position_params(0, client.offset_encoding)
+
+    client:request("textDocument/forwardSearch", params, function(err, result)
         if err then
             callback("Error building: " .. err)
             return
@@ -111,7 +112,7 @@ local function __environment_rename(callback, opts)
         return
     end
 
-    client.request("workspace/executeCommand", {
+    client:request("workspace/executeCommand", {
         command = "texlab.changeEnvironment",
         arguments = { params },
     }, function(err, _)
@@ -140,13 +141,14 @@ end
 
 --- @param callback function: Callback to call with the result
 function M.__environments(callback)
-    local params = vim.lsp.util.make_position_params()
     local client = M.get_texlab(0)
     if not client then
         return callback("No texlab client found")
     end
 
-    client.request("workspace/executeCommand", {
+    local params = vim.lsp.util.make_position_params(0, client.offset_encoding)
+
+    client:request("workspace/executeCommand", {
         command = "texlab.findEnvironments",
         arguments = { params },
     }, function(err, envs)
@@ -176,18 +178,18 @@ function M.__workspace_symbols(callback)
         return
     end
 
-    client.request("workspace/symbol", params, callback)
+    client:request("workspace/symbol", params, callback)
 end
 
 function M.__document_symbols(callback)
     local client = M.get_texlab(0)
-    local params = vim.lsp.util.make_position_params()
     if not client then
         callback("No texlab client found")
         return
     end
+    local params = vim.lsp.util.make_position_params(0, client.offset_encoding)
 
-    client.request("textDocument/documentSymbol", params, callback)
+    client:request("textDocument/documentSymbol", params, callback)
 end
 
 local SECTION_KINDS = { 2 }
