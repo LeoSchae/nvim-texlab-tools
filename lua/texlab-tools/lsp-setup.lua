@@ -4,7 +4,7 @@ local function BUILDERS()
     return {
         latexmk = {
             executeable = "latexmk",
-            args = { "-pdf", "-interaction=nonstopmode", "-synctex=1", "%f" },
+            args = { "-interaction=nonstopmode", "-synctex=1", "%f" },
         }
     }
 end
@@ -58,7 +58,10 @@ function M.setup(opts)
                     executable = "nvim",
                     args = { "--server", vim.v.servername, "--remote.send",
                         "<cmd>lua require(\"texlab-tools\").__forward_search({line=[[%l]],file=[[%f]],pdf=[[%p]]})<cr>" }
-                }
+                },
+                hover = {
+                    symbols = "glyph",
+                },
             }
         }
     }, server_opts)
@@ -67,7 +70,8 @@ function M.setup(opts)
         server_opts = vim.tbl_deep_extend("error", server_opts, build_opts(builder))
     end
 
-    require("lspconfig").texlab.setup(server_opts)
+    vim.lsp.config("texlab", server_opts)
+    vim.lsp.enable("texlab")
 end
 
 return M
